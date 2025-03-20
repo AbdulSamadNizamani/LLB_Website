@@ -150,8 +150,6 @@ app.get('/auth/google/callback', passport.authenticate("google", { session: true
             sameSite: 'none',
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
-        const redirectUrl = process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
-        return res.send("Logged Successfully");
     } catch (error) {
         console.error("Error generating token:", error);
         const fallbackUrl = process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
