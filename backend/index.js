@@ -141,23 +141,31 @@ passport.deserializeUser(async (id, done) => {
 app.get('/auth/google', passport.authenticate('google', { scope: ['email', 'profile'] }));
 
 app.get('/auth/google/callback', passport.authenticate("google", { session: true }), async (req, res) => {
-    try {
-        const user = req.user;
-        const token = jwt.sign({ id: user._id, name: user.name }, process.env.SECRET_KEY, { expiresIn: '7d' });
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
-        const redirectUrl= process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
-        return res.redirect(redirectUrl)
-    } catch (error) {
-        console.error("Error generating token:", error);
-        const fallbackUrl = process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
-        return res.redirect(`${fallbackUrl}?error=authentication_failed`);
-    }
-});
+   try {
+    console.log("Fetching user...");
+    const user = req.user;
+    console.log("User fetched:", user);
+
+    console.log("Generating token...");
+    const token = jwt.sign({ id: user._id, name: user.name }, process.env.SECRET_KEY, { expiresIn: '7d' });
+    console.log("Token generated:", token);
+
+    console.log("Setting cookie...");
+    res.cookie('token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    const redirectUrl = process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
+    console.log("Redirecting to:", redirectUrl);
+    return res.redirect(redirectUrl);
+} catch (error) {
+    console.error("Error generating token:", error);
+    const fallbackUrl = process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
+    return res.redirect(`${fallbackUrl}?error=authentication_failed`);
+}
 app.use('/auth',router);
 app.use('/admin',adminrouter);
 app.use('/manager',managerrouter)
